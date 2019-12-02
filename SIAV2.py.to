@@ -1,0 +1,950 @@
+#! /home/bonnarel/anaconda2/bin/python 
+from astropy.io.votable.tree import VOTableFile, Resource, Table, Field, Element, _IDProperty, Values, Info 
+import urllib 
+import urllib2 
+import sys
+import cgi, cgitb 
+import math 
+import re
+import os
+def JsonRow(gg, a, b) :
+    gg.write("     \"")
+    gg.write(a)
+    gg.write("\" : \"")
+    bb = '{}'.format(b)
+    gg.write(bb)
+    if  a == "access_url_bis" :
+        gg.write("\"\n")
+    else :
+        gg.write("\",\n")
+def JsonMeta(name,dtype,dsize,unit,ucd,utype) :
+    gg.write('          \"{}\" : {{\n'.format(name))
+    gg.write("                                   \"datatype\" : ")
+    gg.write("\"{}\"\n".format(dtype))
+    if not (dsize == '') :
+       gg.write("                                   \"arraysize\" : ")
+       gg.write("\"{}\"\n".format(dsize))
+    if not (unit == '') :
+       gg.write("                                   \"unit\" : ")
+       gg.write("\"{}\"\n".format(unit)) 
+    gg.write("                                   \"ucd\" : ")
+    gg.write("\"{}\"\n".format(ucd))
+    gg.write("                                   \"utype\" : ")
+    gg.write("\"{}\"\n".format(utype))
+    gg.write("                       }")
+def JsonMetaComma(name,dtype,dsize,unit,ucd,utype) :
+    JsonMeta(name,dtype,dsize,unit,ucd,utype) 
+    gg.write(",\n") 
+def JsonMetaEnd(name,dtype,dsize,unit,ucd,utype) :
+    JsonMeta(name,dtype,dsize,unit,ucd,utype) 
+    gg.write("\n") 
+    
+#ifndef NEW
+#form = cgi.FieldStorage() 
+##else /* NEW */
+#ifndef NEW
+form = cgi.FieldStorage() 
+#else /* NEW */
+#import os
+#form = cgi.FieldStorage() 
+#endif /* NEW */
+#
+##POS =  input('POS:') 
+#ifndef NEW
+if form.getvalue('POS'):
+   POS = form.getvalue('POS')
+else :
+   POS = ''
+#else /* NEW */
+#if form.getvalue('POS'):
+#   POS = form.getvalue('POS')
+#else :
+#   POS = ''
+#endif /* NEW */
+##print 'POS:',POS
+#ifndef NEW
+if form.getvalue('TIME'):
+   TIME = form.getvalue('TIME')
+else :
+   TIME = ''
+#else /* NEW */
+#if form.getvalue('TIME'):
+#   TIME = form.getvalue('TIME')
+#else :
+#   TIME = ''
+#endif /* NEW */
+##TIME =  input('TIME:')
+#ifndef NEW
+if form.getvalue('BAND'):
+   BAND = form.getvalue('BAND')
+else :
+   BAND = '' 
+#else /* NEW */
+#if form.getvalue('BAND'):
+#   BAND = form.getvalue('BAND')
+#else :
+#   BAND = '' 
+#endif /* NEW */
+##BAND =  input('BAND:') 
+#ifndef NEW
+if form.getvalue('POL'):
+   POL = form.getvalue('POL')
+else :
+   POL = ''
+#else /* NEW */
+#if form.getvalue('POL'):
+#   POL = form.getvalue('POL')
+#else :
+#   POL = ''
+#endif /* NEW */
+##POL =  input('POL:') 
+#ifndef NEW
+if form.getvalue('FOV'):
+   FOV = form.getvalue('FOV')
+else :
+   FOV = ''
+#else /* NEW */
+#if form.getvalue('FOV'):
+#   FOV = form.getvalue('FOV')
+#else :
+#   FOV = ''
+#endif /* NEW */
+##FOV = input('FOV:')
+#ifndef NEW
+if form.getvalue('SPATRES'):
+   SPATRES = form.getvalue('SPATRES')
+else :
+   SPATRES = ''
+#else /* NEW */
+#if form.getvalue('SPATRES'):
+#   SPATRES = form.getvalue('SPATRES')
+#else :
+#   SPATRES = ''
+#endif /* NEW */
+##SPATRES = input('SPATRES:')
+#ifndef NEW
+if form.getvalue('SPECRP'):
+   SPECRP = form.getvalue('SPECRP')
+else :
+   SPECRP = ''
+#SPECRP = input('SPECRP:')
+if form.getvalue('EXPTIME'):
+   EXPTIME = form.getvalue('EXPTIME')
+else :
+   EXPTIME = ''
+#else /* NEW */
+#if form.getvalue('SPECRP'):
+#   SPECRP = form.getvalue('SPECRP')
+#else :
+#   SPECRP = ''
+##SPECRP = input('SPECRP:')
+#if form.getvalue('EXPTIME'):
+#   EXPTIME = form.getvalue('EXPTIME')
+#else :
+#   EXPTIME = ''
+#endif /* NEW */
+##EXPTIME = input('EXPTIME:')
+#ifndef NEW
+if form.getvalue('TIMERES'):
+   TIMERES = form.getvalue('TIMERES')
+else :
+   TIMERES = ''
+#else /* NEW */
+#if form.getvalue('TIMERES'):
+#   TIMERES = form.getvalue('TIMERES')
+#else :
+#   TIMERES = ''
+#endif /* NEW */
+##TIMERES = input('TIMERES:') 
+#ifndef NEW
+if form.getvalue('ID'):
+   ID = form.getvalue('ID')
+else :
+   ID = ''
+#else /* NEW */
+#if form.getvalue('ID'):
+#   ID = form.getvalue('ID')
+#else :
+#   ID = ''
+#endif /* NEW */
+##ID = input('ID:')
+#ifndef NEW
+if form.getvalue('COLLECTION'):
+   COLLECTION = form.getvalue('COLLECTION')
+else :
+   COLLECTION = ''
+#else /* NEW */
+#if form.getvalue('COLLECTION'):
+#   COLLECTION = form.getvalue('COLLECTION')
+#else :
+#   COLLECTION = ''
+#endif /* NEW */
+##COLLECTION = input('COLLECTION:')
+#ifndef NEW
+if form.getvalue('FACILITY'):
+   FACILITY = form.getvalue('FACILITY')
+else :
+   FACILITY = ''
+#else /* NEW */
+#if form.getvalue('FACILITY'):
+#   FACILITY = form.getvalue('FACILITY')
+#else :
+#   FACILITY = ''
+#endif /* NEW */
+##FACILITY = input('FACILITY:')
+#ifndef NEW
+if form.getvalue('INSTRUMENT'):
+   INSTRUMENT = form.getvalue('INSTRUMENT')
+else :
+   INSTRUMENT = ''
+#else /* NEW */
+#if form.getvalue('INSTRUMENT'):
+#   INSTRUMENT = form.getvalue('INSTRUMENT')
+#else :
+#   INSTRUMENT = ''
+#endif /* NEW */
+##INSTRUMENT = input('INSTRUMENT:')
+#ifndef NEW
+if form.getvalue('DPTYPE'):
+   DPTYPE = form.getvalue('DPTYPE')
+else :
+   DPTYPE = ''
+#else /* NEW */
+#if form.getvalue('DPTYPE'):
+#   DPTYPE = form.getvalue('DPTYPE')
+#else :
+#   DPTYPE = ''
+#endif /* NEW */
+##DPTYPE = input('DPTYPE:')
+#ifndef NEW
+if form.getvalue('CALIB'):
+   CALIB = form.getvalue('CALIB')
+else :
+   CALIB = ''
+#CALIB = input('CALIB:')
+if form.getvalue('TARGET'):
+   TARGET = form.getvalue('TARGET')
+else :
+   TARGET = ''
+#else /* NEW */
+#if form.getvalue('CALIB'):
+#   CALIB = form.getvalue('CALIB')
+#else :
+#   CALIB = ''
+##CALIB = input('CALIB:')
+#if form.getvalue('TARGET'):
+#   TARGET = form.getvalue('TARGET')
+#else :
+#   TARGET = ''
+#endif /* NEW */
+##TARGET = input('TARGET:')
+#ifndef NEW
+if form.getvalue('FORMAT'):
+   FORMAT = form.getvalue('FORMAT')
+else :
+   FORMAT = ''
+#else /* NEW */
+#if form.getvalue('FORMAT'):
+#   FORMAT = form.getvalue('FORMAT')
+#else :
+#   FORMAT = ''
+#endif /* NEW */
+##FORMAT = input('FORMAT:')
+#ifndef NEW
+if form.getvalue('MAXREC'):
+   MAXREC = form.getvalue('MAXREC')
+else :
+   MAXREC = ''
+if form.getvalue('RESPONSEFORMAT'):
+   RESPONSEFORMAT = form.getvalue('RESPONSEFORMAT')
+else :
+   RESPONSEFORMAT = 'VOTable'
+if RESPONSEFORMAT == 'VOTable' :
+   print 'Content-type: text/xml'
+else :
+   print 'Content-type: text/json'
+print
+#else /* NEW */
+#if form.getvalue('MAXREC'):
+#   MAXREC = form.getvalue('MAXREC')
+#else :
+#   MAXREC = ''
+#endif /* NEW */
+##MAXREC = input('MAXREC:')
+#ifndef NEW
+#endif /* NEW */
+#else /* NEW */
+##endif /* NEW */
+#endif /* NEW */
+
+#ifndef NEW
+#POS =  input('POS:') 
+#TIME =  input('TIME:')
+#BAND =  input('BAND:') 
+#POL =  input('POL:') 
+#FOV = input('FOV:')
+#SPATRES = input('SPATRES:')
+#SPECRP = input('SPECRP:')
+#EXPTIME = input('EXPTIME:')
+#TIMERES = input('TIMERES:') 
+#ID = input('ID:')
+#COLLECTION = input('COLLECTION:')
+#FACILITY = input('FACILITY:')
+#INSTRUMENT = input('INSTRUMENT:')
+#DPTYPE = input('DPTYPE:')
+#CALIB = input('CALIB:')
+#TARGET = input('TARGET:')
+#jjj==FORMAT = input('FORMAT:')
+#MAXREC = input('MAXREC:')
+pos = POS.split() 
+time = TIME.split() 
+band = BAND.split()
+pol = POL.split()
+fov = FOV.split()
+spatres = SPATRES.split()
+specrp = SPECRP.split()
+exptime = EXPTIME.split()
+timeres = TIMERES.split()
+id = ID.split()
+collection = COLLECTION.split()
+facility = FACILITY.split()
+instrument = INSTRUMENT.split()
+dptype = DPTYPE.split()
+calib = CALIB.split()
+target = TARGET.split()
+format = FORMAT.split()
+maxrec = MAXREC.split()
+
+#else /* NEW */
+#print  len (pos) ;
+#endif /* NEW */
+
+#else /* NEW */
+#print len (time)
+#endif /* NEW */
+
+#else /* NEW */
+#print len( band) 
+#endif /* NEW */
+
+#else /* NEW */
+#print len(pol)
+#print len(fov)
+#print "spatres ", len(spatres)
+#print len(specrp)
+#print len(exptime)
+#print len(timeres)
+#print len(id)
+#print "collection ",len(collection)
+#print len(facility)
+#print len(instrument)
+#print len(dptype)
+#print len(calib)
+#print len(target)
+#print len(format)
+#print len(maxrec)
+#endif /* NEW */
+
+#else /* NEW */
+#print POS,TIME,BAND,POL
+#endif /* NEW */
+votable = VOTableFile()
+resource = Resource()
+votable.resources.append(resource)
+
+# ... with one table
+table = Table(votable)
+resource.tables.append(table)
+
+# Define some fields
+#ifndef NEW
+
+#txel = Field(votable, name="t_xel", datatype="long", ucd='meta.number', utype='Char.TimeAxis.numBins')
+#Values(votable,txel,null=-32768)
+
+
+#endif /* ! NEW */
+table.fields.extend([
+        Field(votable, name="dataproduct_type", datatype="char", arraysize="*", ucd='meta.id', utype='ObsDataset.dataProductType'),
+        Field(votable, name="calib_level", datatype="int", arraysize="1", ucd='meta.code;obs.calib', utype='ObsDataset.calibLevel'),
+        Field(votable, name="obs_collection", datatype="char", arraysize="*", ucd='meta.id', utype='DataID.collection'),
+        Field(votable, name="obs_id", datatype="char", arraysize="*",ucd='meta.id',utype='DataID.observationID'),
+        Field(votable, name="obs_publisher_id", datatype="char", arraysize="*",ucd='meta.ref.url;meta.curation',utype='Curation.publisherDID'),
+        Field(votable, name="access_url", datatype="char", arraysize="*",ucd='meta.ref.url',utype='Access.reference'),
+ Field(votable, name="access_format", datatype="char", arraysize="*",ucd='meta.code.mime',utype='Access.format'),
+ Field(votable, name="access_estsize", datatype="long",unit="kbyte",ucd='phys.size;meta.file',utype='Access.size'),
+ Field(votable, name="target_name", datatype="char",arraysize="*",ucd='meta.id;src',utype='Target.name'),
+Field(votable, name="s_ra", datatype="double", ucd='pos.eq.ra', utype='Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C1',unit="deg"),
+Field(votable, name="s_dec", datatype="double", ucd='pos.eq.dec', utype='Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C2',unit="deg"),
+Field(votable, name="s_fov", datatype="double", ucd='phys.angSize;instr.fov', utype='Char.SpatialAxis.Coverage.Bounds.Extent.diameter',unit="deg"),
+Field(votable, name="s_region", datatype="char", arraysize="*",ucd='pos.outline;obs.field', utype='Char.SpatialAxis.Coverage.Support.Area'),
+Field(votable, name="s_resolution", datatype="double", ucd='pos.angResolution', utype='Char.SpatialAxis.Resolution.Refval.value',unit="arcsec"),
+Field(votable, name="s_xel1", datatype="long", ucd='meta.number', utype='Char.SpatialAxis.numBins1'),
+Field(votable, name="s_xel2", datatype="long", ucd='meta.number', utype='Char.SpatialAxis.numBins2'),
+        Field(votable, name="em_min", datatype="double", ucd='em.wl;stat.min', utype='Char.SpectralAxis.Coverage.Bounds.Limits.LoLimit',unit="m"),
+        Field(votable, name="em_max", datatype="double",  ucd='em.wl;stat.max', utype='Char.SpectralAxis.Coverage.Bounds.Limits.HiLimit',unit="m"
+),
+Field(votable, name="em_res_power", datatype="double",  ucd='spect.resolution', utype='Char.SpectralAxis.Resolution.ResolPower.refVal'),
+Field(votable, name="em_xel", datatype="long", ucd='meta.number', utype='Char.SpectralAxis.numBins'),
+        Field(votable, name="t_min", datatype="double", ucd='time.start;obs.exposure', utype='Char.TimeAxis.Coverage.Bounds.Limits.StartTime',unit="d"),
+        Field(votable, name="t_max", datatype="double", ucd='time.end;obs.exposure', utype='Char.TimeAxis.Coverage.Bounds.Limits.StopTime',unit="d"),
+Field(votable, name="t_exptime", datatype="double", ucd='time.duration;obs.exposure', utype='Char.TimeAxis.Coverage.Support.Extent',unit="s"),
+Field(votable, name="t_resolution", datatype="double", ucd='time.resolution', utype='Char.TimeAxis.Resolution.Refval.value',unit="s"),
+Field(votable, name="t_xel", datatype="long", ucd='meta.number', utype='Char.TimeAxis.numBins'),
+Field(votable, name="o_ucd", datatype="char", arraysize="*",ucd='meta.ucd',utype='Char.ObservableAxis.ucd'),
+Field(votable, name="pol_states", datatype="char", arraysize="*",ucd='meta.code;phys.polarization',utype='Char.PolarizationAxis.stateList'),
+Field(votable, name="pol_xel",
+datatype="long",ucd='meta.number',utype='Char.PolarizationAxis.numBins'),
+Field(votable, name="facility_name", datatype="char", arraysize="*",ucd='meta.id;instr.tel',utype='Provenance.ObsConfig.Facility.name'),
+Field(votable, name="instrument_name", datatype="char", arraysize="*",ucd='meta.id;instr',utype='Provenance.ObsConfig.Instrument.name'),
+        Field(votable, name="access_url_bis", datatype="char", arraysize="*",ucd='meta.ref.url',utype='Access.reference'),
+        Field(votable, name="access_hips", datatype="char", arraysize="*",ucd='meta.ref.url',utype='Access.reference'),
+])
+
+
+index = len(pol)+len(exptime)+len(timeres)+len(facility)+len(instrument)+len(calib)+len(target)
+
+
+if (index !=0) :
+    votable.to_xml("new_votable.xml")
+    sys.exit("no records founds")
+if (len(time) == 2) :
+    tmin = time[0]
+    tmax = time[1]
+#else /* NEW */
+    #print 'tmin: '+tmin
+    #print 'tmax: '+tmax
+#endif /* NEW */
+
+#vif(len(pos) == 3) :
+if (len(pos) != 0) :
+    if ((pos[0] == 'CIRCLE')and (len(pos) == 4)) :
+        lon = pos[1]
+        lat = pos[2]
+        rad = pos[3]
+else :
+    if RESPONSEFORMAT == 'VOTable' :
+         info = Info( name="QUERY_STATUS",value="ERROR" )
+#         Info.append("POS parameter required for virtual data"  )
+         resource.infos.append(info)
+         info = Info( name="ERROR_DETAIL",value="POS parameter required for virtual data" )
+         resource.infos.append(info)
+         votable.to_xml("/tmp/new_votable.xml")
+         f= open('/tmp/new_votable.xml','r') 
+    else :
+       gg = open("/tmp/siav2.js","w")
+       gg.write("{\n")
+       gg.write("info : error, POS parameter required for virtual data\n")
+       gg.write("}\n")
+       gg.close()
+       f = open("/tmp/siav2.js",'r')
+    print f.read()
+    f.closed
+    sys.exit()
+
+
+
+
+
+   
+#else /*& NEW */
+    #print 'lon: '+ lon
+    #print 'lat'+ lat
+    #print 'rad'+ rad
+#endif /* NEW */
+
+   
+if (len(band) == 2) : 
+     emin = band[0]
+     emax = band[1]
+#else /* NEW */
+     #print 'emin :'+emin
+     #print 'emax:'+emax
+#endif /* NEW */
+   
+
+if (len(pol) == 1) :
+     Pol = pol[0]
+#else /* NEW */
+     #print 'Pol:'+Pol
+#endif /* NEW */
+if (len(collection) == 1):
+    ocollec = collection[0]
+
+if(len(dptype)==1) :
+    datatype = dptype[0]
+
+if (len(id)==1) :
+   ident = id[0]
+ 
+
+flagfirst = 1
+
+url = "http://alasky.unistra.fr/MocServer/query?get=record"
+if (len(pos) == 4) :
+     url = url + '&' + 'RA=' +lon + '&' +'DEC='+lat +'&' +'SR=' +rad
+url = url + '&' + 'expr=' +urllib.quote('hips_tile_format=*fits*')
+flagfirst = 0
+if (len(time) == 2) :
+      if (flagfirst ==1) :
+           url = url  + '&' + 'expr='
+           url = url + urllib.quote('(t_min<'+tmax+')&&(t_max>'+tmin+')') 
+           flagfirst=0
+      else:
+           url = url + urllib.quote('&&(t_min<'+tmax+')&&(t_max>'+tmin+')') 
+if (len(band) == 2) :
+      if (flagfirst ==1) :
+           url = url  + '&' + 'expr='
+           url = url + urllib.quote('(em_min<'+emax+')&&(em_max>'+emin+')')
+           flagfirst=0
+      else:
+           url = url + urllib.quote('&&(em_min<'+emax+')&&(em_max>'+emin+')')
+if (len(collection) == 1):
+      if (flagfirst ==1) :
+           url = url  + '&' + 'expr='
+           url = url  + urllib.quote('(obs_collection='+ocollec+')')
+           flagfirst=0
+      else:
+           url = url  + urllib.quote('&&(obs_collection='+ocollec+')')
+
+if (len(dptype) == 1):
+      if (flagfirst ==1) :
+           url = url  + '&' + 'expr='
+           url = url  + urllib.quote('(dataproduct_type='+datatype+')')
+           flagfirst=0
+      else:
+           url = url  + urllib.quote('&&(dataproduct_type='+datatype+')')
+if (len(id) == 1):
+      if (flagfirst ==1) :
+           url = url  + '&' + 'expr='
+           url = url  + urllib.quote('(ID='+ident+')')
+           flagfirst=0
+      else:
+           url = url  + urllib.quote('&&(ID='+ident+')')
+
+
+
+#url = url + "&fields=" + urllib.quote('ID,obs_id,obs_collection,t_min,t_max,obs_initial_ra,obs_initial_dec,obs_initial_fov')
+#ifndef NEW
+#print url
+#else /* NEW */
+#ifndef NEW
+##print url
+#else /* NEW */
+#endif /* NEW */
+#endif /* NEW */
+f= urllib.urlopen(url) 
+
+#f= urllib.urlopen('http://alasky.unistra.fr/MocServer/query?get=record&expr=%28%28t_min%3C52300%29%26%26%28t_max%3E52400%29%29') 
+#ifndef NEW
+#print (f.read(100000))
+#else /* NEW */
+##print (f.read(100000))
+#endif /* NEW */
+#out = f.read(10000).split("=")
+#ifndef NEW
+#print( out[1])
+#else /* NEW */
+##print( out[1])
+#endif /* NEW */
+
+idid = []
+pubdid = ''
+collect = []
+colct =''
+collecta = []
+obsid = ''
+hipsid = []
+hpsid = ''
+title = []
+titl = ''
+timemin = []
+timmin = 'NaN'
+timemax = []
+timmax = 'NaN'
+emmin = []
+eminimum = 'NaN'
+emmax = []
+emaximum = 'NaN'
+protype = []
+protyp= ''
+pscale = []
+splitlin= 0
+npixx = []
+npix = 0
+hpsurl = []
+hpsurl1 = []
+hpurl=''
+hpurl1=''
+linecount = 0 
+colcount = 0
+titcount = 0
+tmincount = 0
+tmaxcount = 0
+emincount = 0
+emaxcount= 0
+typecount = 0
+pscount = 0
+hpsurlcount = 0
+
+for line in f.read().split('\n'):
+#for line in f.read(100000).split('\n'):
+#ifndef NEW
+#ifndef NEW
+#     print line
+#else /* NEW */
+#     print line
+#endif /* NEW */
+#else /* NEW */
+     ##print line
+#endif /* NEW */
+     splitline = line.split('=')
+#ifndef NEW
+     #print len(splitline)
+#else /* NEW */
+     ##print len(splitline)
+#endif /* NEW */
+     if (len(splitline) == 2) :
+      #   #print "Len: ", len(splitline[0].strip())
+         #print splitline[0]
+         #print splitline[1]
+#endif /* NEW */
+         if (splitline[0].strip() == 'ID') :
+               #print 'ID:',splitline[1].strip()
+               if (hpsurlcount < linecount) :
+               #   print 'hps', hpsurlcount, linecount
+                  linecount = linecount - 1
+                  emaxcount = linecount 
+                  colcount = linecount 
+                  typecount = linecount 
+                  pscount = linecount 
+                  titcount = linecount 
+                  tmincount = linecount 
+                  tmaxcount = linecount 
+                  emincount = linecount 
+                  hpsurlcount =  linecount
+               else :
+               
+                  if (emaxcount < linecount) :
+                       emaxcount = emaxcount + 1
+                       emmaximum='NaN'
+                  if (colcount < linecount) :
+                       colcount = colcount + 1
+                       colct = '' 
+                  if (typecount < linecount) :
+                       typecount = typecount + 1
+                       protyp=''
+                  if (pscount < linecount) :
+                       pscount = pscount + 1
+                       splitlin=0.0
+                       # print 'count ',linecount,emincount
+                  if (titcount < linecount) :
+                       titcount = titcount + 1
+                       titl=''
+                  if (tmincount < linecount) :
+                       tmincount = tmincount + 1
+                       timmin='NaN'
+                  if (tmaxcount < linecount) :
+                       tmaxcount = tmaxcount + 1
+                       timmax='NaN'
+                  if (emincount < linecount) :
+                       # print 'cout no'
+                       emincount = emincount + 1
+                       emminimum='NaN'
+                  #else :
+                       # print 'count yes'
+                  linecount = linecount+1
+                
+                  if not (linecount == 1 ) : 
+                     collecta.append(colct)
+                     idid.append(pubdid) 
+                     hipsid.append(hpsid)
+                     timemin.append(timmin)
+                     timemax.append(timmax)
+                     emmin.append(eminimum)
+                     emmax.append(emaximum)
+                     protype.append(protyp)
+                     collect.append(obsid)
+                     npixx.append(npix)
+                     pscale.append(splitlin)
+                     title.append(titl)
+                     hpsurl.append(hpurl) 
+                     hpsurl1.append(hpurl1)
+                  # print 'idid ',idid[0]
+                  obsid = splitline[1].strip() + ' # ' + lon + ' ' + lat + ' ' + rad 
+               #collect.append(obsid)
+                  # print 'obsid ',obsid
+        #          if '/P/' in splitline[1].strip() :
+                       #colct = (splitline[1].strip()).split('/P/')
+#else /* NEW */
+        #               print 'Colct ',colct[1]
+#endif /* NEW */
+        #jj          #  collecta.append(colct[1])
+          #             colct = colct[1]
+          #        else :
+                   # collecta.append(splitline[1].strip())
+          #             colct = splitline[1].strip()
+          #             print 'Colct ',colct
+                  pubdid = 'ivo://'+ splitline[1].strip() + '#' + lon +'_' +lat + '_' + rad
+                  # print 'Pubdid ',pubdid
+               #idid.append(pubdid) 
+                  hpsid = splitline[1].strip()
+                  
+         if (splitline[0].strip() == 't_min') :
+               tmincount = tmincount + 1
+               timmin = splitline[1].strip()
+               try :
+                   float(timmin)
+               except ValueError:
+                   timmin = 'NaN'  
+               #timemin.append(timmin)
+               # print 'Timemin ', timmin
+         if (splitline[0].strip() == 't_max') :
+               tmaxcount = tmaxcount + 1
+               timmax = splitline[1].strip()
+               try :
+                   float(timmax)
+               except ValueError:
+                   timmax = 'NaN'  
+               # print 'Timemax ', timmax
+               #timemax.append(timmax)
+         if (splitline[0].strip() == 'em_min') :
+               emincount = emincount +1 
+               eminimum = splitline[1].strip()
+               if  ',' in eminimum :
+                   eminimum = eminimum.replace(',','.')
+                   #print eminimum  
+               try: 
+                  float(eminimum)
+               except ValueError:
+                  eminimum='NaN'
+               #emmin.append(eminimum)
+               #print 'Emini ',eminimum
+         if (splitline[0].strip() == 'em_max') :
+               emaxcount = emaxcount + 1
+               emaximum = splitline[1].strip()
+               if  ',' in emaximum :
+                   emaximum = emaximum.replace(',','.')
+               try:
+                   float(emaximum)
+               except ValueError:
+                   emaximum='NaN'
+               #emmax.append(emaximum)
+               #print 'Emmaximum ',emaximum
+         if (splitline[0].strip() == 'dataproduct_type') :
+               typecount = typecount + 1
+               protyp = splitline[1].strip()
+#               protype.append(splitline[1].strip())
+               #print 'protype ',splitline[1].strip()
+         if (splitline[0].strip() == 'obs_collection') :
+               colcount = colcount + 1
+               colct = splitline[1].strip()
+               #print 'Colct ',colct
+         if (splitline[0].strip() == 'hips_pixel_scale') :
+               pscount = pscount + 1
+               try :
+                   npix=int(float(rad)//float(splitline[1].strip()))
+               except ValueError:
+                   npix='-32768'
+
+               try :
+                    splitlin = 3600.0*float(splitline[1].strip()) 
+               except ValueError:
+                    splitlin = 'NaN'
+               #pscale.append(splitlin)
+               #print 'npix ',npix,splitlin
+         if (splitline[0].strip() == 'obs_title') :
+               titcount = titcount+1
+               titl=splitline[1].strip()
+#               title.append(splitline[1].strip())
+               #print 'obs_title ',splitline[1].strip()
+         if (splitline[0].strip() == 'hips_service_url') :
+               hpsurlcount = hpsurlcount+1
+               hpurl = urllib.quote(splitline[1].strip())
+               hpurl1 = splitline[1].strip()
+#ifdef NEW
+#               print linecount,hpsurlcount," hpurl ", hpurl
+#                    print linecount,hpsurlcount," tile " ,splitline[1].strip() 
+#endif /* NEW */
+               #print 'url ',splitline[1].strip()
+#else /* NEW */
+
+#     else: 
+#         print 'line ',line ;   
+#endif /* NEW */
+        
+#else /* NEW */
+#print 'count: ',linecount 
+#endif /* NEW */
+#for row in range(1,linecount) :
+#ifndef NEW
+#        print idid[row-1],timemin[row-1],timemax[row-1],emmin[row-1], emmax[row-1],protype[row-1],'collect',collect[row-1],pscale[row-1],'title',title[row-1]
+#else /* NEW */
+#        #print idid[row-1],timemin[row-1],timemax[row-1],emmin[row-1], emmax[row-1],protype[row-1],'collect',collect[row-1],pscale[row-1],'title',title[row-1]
+#endif /* NEW */
+
+
+#for row in range(1,linecount+1) :
+#ifndef NEW
+#        print idid[row-1],timemin[row-1],timemax[row-1],emmin[row-1], emmax[row-1],protype[row-1],'collect',collect[row-1],pscale[row-1],'title',title[row-1]
+#table.create_arrays(linecount)
+#else /* NEW */
+#        #print idid[row-1],timemin[row-1],timemax[row-1],emmin[row-1], emmax[row-1],protype[row-1],'collect',collect[row-1],pscale[row-1],'title',title[row-1]
+#table.create_arrays(linecount) if (linecount > 100) :
+#endif /* NEW */
+
+#ifndef NEW
+#for row in range(1,linecount+1) :
+#else /* NEW */
+#linecount = 10
+#ifndef NEW
+gg = open("/tmp/siav2.js","w")
+                
+if  (linecount > 1 ) : 
+                     collecta.append(colct)
+                     idid.append(pubdid) 
+                     hipsid.append(hpsid)
+                     timemin.append(timmin)
+                     timemax.append(timmax)
+                     emmin.append(eminimum)
+                     emmax.append(emaximum)
+                     protype.append(protyp)
+                     collect.append(obsid)
+                     npixx.append(npix)
+                     pscale.append(splitlin)
+                     title.append(titl)
+                     hpsurl.append(hpurl) 
+                     hpsurl1.append(hpurl1) 
+gg.write("{\n")
+gg.write(" \"metadata\": [\n")
+JsonMetaComma("dataproduct_type","char","*","","meta.id","Obsdataset.dataProductType")
+JsonMetaComma("calib_level","int","","","meta.code;obs.calib","Obsdataset.calibLevel")
+JsonMetaComma("obs_collection","char","*","","meta.id","DataID.collection")
+JsonMetaComma("obs_id","char","*","","meta.id","DataID.observationID")
+JsonMetaComma("obs_publisher_did","char","*","","meta.id","Curation.publisherDID")
+JsonMetaComma("access_url","char","*","","meta.ref.url","Access.reference")
+JsonMetaComma("access_format","char","*","","meta.code.mime","Access.format")
+JsonMetaComma("access_estsize","char","*","","phys.size;meta.file","Access.size")
+JsonMetaComma("target_name","char","*","","phys.id;src","Target.name")
+JsonMetaComma("s_ra","double","","deg","pos.eq.ra","Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C1")
+JsonMetaComma("s_dec","double","","deg","pos.eq.dec","Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C2")
+JsonMetaComma("s_fov","double","","deg","phys.angSize;instr.fov","Char.SpatialAxis.Coverage.Bounds.Extent.diameter")
+JsonMetaComma("s_region","char","*","","pos.outline;obs.field","Char.SpatialAxis.Coverage.Support.Area")
+JsonMetaComma("s_resolution","double","","arcsec","pos.angResolution","Char.SpatialAxis.Resolution.RefVal.value")
+JsonMetaComma("s_xel1","long","","","meta.number","Char.SpatialAxis.numBins1")
+JsonMetaComma("s_xel2","long","","","meta.number","Char.SpatialAxis.numBins2")
+JsonMetaComma("em_min","double","","m","em.wl;stat.min","Char.SpectralAxis.Coverage.Bounds.Limits.LoLimit")
+JsonMetaComma("em_max","double","","m","em.wl;stat.max","Char.SpectralAxis.Coverage.Bounds.Limits.HiLimit")
+JsonMetaComma("em_res_power","double","","","spect.resolution","Char.SpectralAxis.Resolution.ResolvPower.refval")
+JsonMetaComma("em_xel","long","","","meta.number","Char.SpectralAxis.numBins")
+JsonMetaComma("t_min","double","","d","time.start;obs.exposure","Char.TimeAxis.Coverage.Bounds.Limits.StartTime")
+JsonMetaComma("t_max","double","","d","time.end;obs.exposure","Char.TimeAxis.Coverage.Bounds.Limits.StopTime")
+JsonMetaComma("t_exptime","double","","s","time.duration","Char.TimeAxis.Coverage.Support.Area.Extent")
+JsonMetaComma("t_resolution","double","","s","time.resolution","Char.TimeAxis.Resolution.RefVal.value")
+JsonMetaComma("t_xel","long","","","meta.number","Char.TimeAxis.numBins")
+JsonMetaComma("o_ucd","char","*","","meta.ucd","Char.ObservableAxis.ucd")
+JsonMetaComma("pol_states","char","*","","meta.code;phys.polarization","Char.PolarizationAxis.stateList")
+JsonMetaComma("pol_xel","long","","","meta.number","Char.PolarizationAxis.numBins")
+JsonMetaComma("facility_name","char","*","","meta.id;instr.tel","Provenance.ObsConfig.Facility.name")
+JsonMetaComma("instrument_name","char","*","","meta.id;instr","Provenance.ObsConfig.Instrument.name")
+JsonMetaEnd("access_url_bis","char","*","","meta.ref.url","")
+#gg.write("          \"dataproduct_type\" : {\n")
+#gg.write("                                   \"datatype\" : ")
+#gg.write("\"char\"\n")
+#gg.write("                                   \"arraysize\" : ")
+#gg.write("\"*\"\n")
+#gg.write("                                   \"ucd\" : ")
+#gg.write("\"meta.id\"\n")
+#gg.write("                                   \"utype\" : ")
+#gg.write("\"Obsdatset.dataProductType\"\n")
+gg.write("   ],\n")
+gg.write(" \"data\" :  [\n")
+gg.close()
+table.create_arrays(linecount)
+for row in range(1,linecount+1) :
+#else /* NEW */
+       order = int(math.floor(math.log(57.0/float(rad),2)))
+#        rad1 = float(rad)*60.0 
+       rad1 = rad
+       #print row-1,order,rad1
+#       viurl = "essai {} et {} {}".format(lon, lat,rad1 )
+       viurl = 'http://localhost:8080/hipstofits//getfitsV2?surveyurl={}&pos=CIRCLE%20{}%20{}%20{}&resType=order&order={}'.format( hpsurl[row-1], lon,lat,rad1,order)
+#ifndef NEW
+#       viurl = 'http://alasky.u-strasbg.fr/cgi/hips2fits?hips='+hipsid[row-1]+'&ra='+lon+'&dec='+lat+'&fov='+rad+'&width='+str(npixx[row-1])+'&height='+str(npixx[row-1])+'&projection=TAN'
+#else /* NEW */
+       viurl1 = 'http://alasky.u-strasbg.fr/cgi/hips2fits?hips='+hipsid[row-1]+'&ra='+lon+'&dec='+lat+'&fov='+rad+'&width='+str(npixx[row-1])+'&height='+str(npixx[row-1])+'&projection=TAN'
+#endif /* NEW */
+       #print row-1, viurl  
+#for row in range(1,100+1) :
+#       print row-1, timemin[row-1]
+#       print row-1, idid[row-1]
+#       print row-1, protype[row-1]
+#       print row-1, collecta[row-1]
+#       print row-1, collect[row-1]
+#       print row-1, pscale[row-1]
+ #      print row-1, npixx[row-1]
+       #print row-1,"emmin", emmin[row-1]
+       #print row-1, "emmax", emmax[row-1]
+       #print row-1, "timemin", timemin[row-1]
+       #print row-1, "timemax", timemax[row-1]
+       gg = open("/tmp/siav2.js","a")
+       gg.write("  {\n")
+       JsonRow(gg,"dataproduct_type",protype[row-1])
+       JsonRow(gg,"calib_level",1)
+       JsonRow(gg,"obs_collection",collecta[row-1])
+       JsonRow(gg,"obs_id",collect[row-1])
+       JsonRow(gg,"obs_publisher_did",idid[row-1])
+       JsonRow(gg,"access_url",viurl)
+       JsonRow(gg,"access_format","image/fits")
+       JsonRow(gg,"access_estsize",-32768)
+       JsonRow(gg,"target_name","")
+       JsonRow(gg,"s_ra",lon)
+       JsonRow(gg,"s_dec",lat)
+       JsonRow(gg,"s_region","")
+       JsonRow(gg,"s_resolution",pscale[row-1])
+       JsonRow(gg,"s_xel1",npixx[row-1])
+       JsonRow(gg,"s_xel2",npixx[row-1])
+       JsonRow(gg,"em_min",emmin[row-1])
+       JsonRow(gg,"em_max",emmax[row-1])
+       JsonRow(gg,"em_res_power",'NaN')
+       JsonRow(gg,"em_xel",-32768)
+       JsonRow(gg,"t_min",timemin[row-1])
+       JsonRow(gg,"t_max",timemax[row-1])
+       JsonRow(gg,"t_xel",-32768)
+       JsonRow(gg,"o_ucd","")
+       JsonRow(gg,"pol_states","")
+       JsonRow(gg,"pol_xel",-32768)
+       JsonRow(gg,"facility","")
+       JsonRow(gg,"instrument_name","")
+       JsonRow(gg,"access_url_bis",viurl1)
+       JsonRow(gg,"access_hips", hpsurl[row-1])
+       if row == linecount  :
+           gg.write("  }\n")
+       else :
+           gg.write("  },\n")  
+       gg.close()
+       table.array[row-1]=(protype[row-1],1,collecta[row-1],collect[row-1],idid[row-1],
+#'http://alasky.u-strasbg.fr',
+viurl,
+'image/fits',-32768, '',lon,lat,rad,'',pscale[row-1],npixx[row-1],npixx[row-1],emmin[row-1],emmax[row-1],'NaN',-32768, timemin[row-1],timemax[row-1],'NaN','NaN',-32768,'','',-32768,'','', viurl1, hpsurl1[row-1])
+#endif /* NEW */
+#       table.array[row-1]=('image',1,'CFHTLS')
+#ifndef NEW
+#       print table.array[row-1]
+gg = open("/tmp/siav2.js","a")
+gg.write("    ]\n")
+gg.write("}\n")
+gg.close()
+votable.to_xml("/tmp/new_votable.xml")
+#else /* NEW */
+#       #print table.array[row-1]
+#votable.to_xml("new_votable.xml")
+if RESPONSEFORMAT == 'VOTable' :
+   f= open('/tmp/new_votable.xml','r') 
+else :
+   f = open("/tmp/siav2.js",'r')
+print f.read()
+f.closed
+
+#endif /* NEW */
+
