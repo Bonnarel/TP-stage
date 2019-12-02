@@ -1,6 +1,6 @@
 #! /home/bonnarel/anaconda2/bin/python 
-from astropy.io.votable.tree import VOTableFile, Resource, Table, Field, Element, _IDProperty, Values, Info 
-import urllib 
+#from astropy.io.votable.tree import VOTableFile, Resource, Table, Field, Element, _IDProperty, Values, Info 
+#import urllib 
 import urllib2 
 import sys
 import cgi, cgitb 
